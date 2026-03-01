@@ -1,8 +1,29 @@
-export default function PairsPage() {
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getPairs } from "@/lib/actions/pairs";
+import { PairsList } from "@/components/pairs/pairs-list";
+import { UserSearch } from "@/components/pairs/user-search";
+
+export const dynamic = "force-dynamic";
+
+export default async function PairsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const pairs = await getPairs();
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Pairs</h1>
-      <p className="text-muted-foreground">Coming soon — pair up with a friend to hold each other accountable.</p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Pairs</h1>
+        <UserSearch />
+      </div>
+
+      <PairsList initialPairs={pairs} userId={user.id} />
     </div>
   );
 }
