@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getDailyData } from "@/lib/actions/habits";
+import { DailyView } from "@/components/habits/daily-view";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +23,13 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
+  const today = new Date().toISOString().slice(0, 10);
+  const initialData = await getDailyData(today);
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p className="text-muted-foreground">
-        Welcome back, {profile.display_name}!
-      </p>
+    <div className="space-y-2">
+      <h1 className="text-2xl font-bold">Today</h1>
+      <DailyView initialData={initialData} userId={user.id} />
     </div>
   );
 }
