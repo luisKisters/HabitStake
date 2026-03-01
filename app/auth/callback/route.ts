@@ -11,7 +11,6 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // Check if profile has display_name set
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -23,8 +22,24 @@ export async function GET(request: Request) {
           .eq("id", user.id)
           .single();
 
+        // Auto-populate display_name and avatar_url from OAuth metadata
         if (!profile?.display_name) {
-          return NextResponse.redirect(`${origin}/onboarding`);
+          const meta = user.user_metadata;
+          const name = meta?.full_name || meta?.name || null;
+          const avatar = meta?.avatar_url || meta?.picture || null;
+
+          if (name) {
+            await supabase
+              .from("profiles")
+              .update({
+                display_name: name,
+                ...(avatar ? { avatar_url: avatar } : {}),
+              })
+              .eq("id", user.id);
+          } else {
+            // No name from provider — fall back to manual entry
+            return NextResponse.redirect(`${origin}/onboarding`);
+          }
         }
       }
 
