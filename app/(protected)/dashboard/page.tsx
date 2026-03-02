@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDailyData } from "@/lib/actions/habits";
 import { DailyView } from "@/components/habits/daily-view";
+import { RunningBalance } from "@/components/settlements/running-balance";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-2">
       <h1 className="text-2xl font-bold">Today</h1>
+      {initialData.pair && <RunningBalance pairId={initialData.pair.id} />}
       <DailyView initialData={initialData} userId={user.id} />
     </div>
   );
