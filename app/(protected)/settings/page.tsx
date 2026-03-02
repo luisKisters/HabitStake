@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { PageTransition } from "@/components/page-transition";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ export default async function SettingsPage() {
     .single();
 
   return (
+    <PageTransition>
     <div className="space-y-8">
       <h1 className="text-2xl font-bold">Settings</h1>
 
@@ -41,5 +43,6 @@ export default async function SettingsPage() {
 
       <SignOutButton />
     </div>
+    </PageTransition>
   );
 }

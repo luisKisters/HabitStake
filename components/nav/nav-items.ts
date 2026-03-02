@@ -16,3 +16,12 @@ export const navItems: NavItem[] = [
   { label: "Stats", href: "/stats", icon: BarChart3 },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
+
+// Subset shown in the mobile bottom tab bar (max 5 to avoid crowding)
+export const bottomNavItems: NavItem[] = [
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Pairs", href: "/pairs", icon: Users },
+  { label: "Approvals", href: "/approvals", icon: CheckSquare },
+  { label: "Stats", href: "/stats", icon: BarChart3 },
+  { label: "Settings", href: "/settings", icon: Settings },
+];

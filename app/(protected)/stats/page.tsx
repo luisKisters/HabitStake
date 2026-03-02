@@ -1,6 +1,7 @@
 import { getHabitStats, getAllTimeStats } from "@/lib/actions/stats";
 import { AllTimeSummary } from "@/components/stats/all-time-summary";
 import { StatsTabs } from "@/components/stats/stats-tabs";
+import { PageTransition } from "@/components/page-transition";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +12,12 @@ export default async function StatsPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Stats</h1>
-      <AllTimeSummary stats={allTimeStats} />
-      <StatsTabs habitStats={habitStats} />
-    </div>
+    <PageTransition>
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Stats</h1>
+        <AllTimeSummary stats={allTimeStats} />
+        <StatsTabs habitStats={habitStats} />
+      </div>
+    </PageTransition>
   );
 }

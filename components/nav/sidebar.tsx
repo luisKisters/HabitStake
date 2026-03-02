@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems } from "./nav-items";
 import { cn } from "@/lib/utils";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -33,6 +34,10 @@ export function Sidebar() {
           );
         })}
       </nav>
+      <div className="border-t px-3 py-3 flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Theme</span>
+        <ThemeSwitcher />
+      </div>
     </aside>
   );
 }

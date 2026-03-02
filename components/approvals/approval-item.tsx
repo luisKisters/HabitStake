@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,15 +66,25 @@ export function ApprovalItem({ req }: { req: ApprovalRequest }) {
 
   function handleApprove() {
     startTransition(async () => {
-      await approveRequest(req.id);
-      setLocalStatus("approved");
+      const result = await approveRequest(req.id);
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        setLocalStatus("approved");
+        toast.success("Request approved.");
+      }
     });
   }
 
   function handleDeny() {
     startTransition(async () => {
-      await denyRequest(req.id);
-      setLocalStatus("denied");
+      const result = await denyRequest(req.id);
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        setLocalStatus("denied");
+        toast.success("Request denied.");
+      }
     });
   }
 

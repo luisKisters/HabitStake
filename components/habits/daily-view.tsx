@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
 import { getDailyData, type HabitWithLog, type ActivePair, type PauseStatus } from "@/lib/actions/habits";
 import { Button } from "@/components/ui/button";
@@ -176,15 +177,24 @@ export function DailyView({ initialData, userId }: Props) {
           </p>
         ) : (
           <div className={["space-y-2", isPending ? "opacity-60" : ""].join(" ")}>
-            {myHabits.map((habit) => (
-              <HabitItem
-                key={habit.id}
-                habit={habit}
-                date={selectedDate}
-                isOwner={true}
-                pauseStatus={pauseStatus}
-              />
-            ))}
+            <AnimatePresence initial={false}>
+              {myHabits.map((habit) => (
+                <motion.div
+                  key={habit.id}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <HabitItem
+                    habit={habit}
+                    date={selectedDate}
+                    isOwner={true}
+                    pauseStatus={pauseStatus}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </section>
@@ -196,15 +206,24 @@ export function DailyView({ initialData, userId }: Props) {
             Partner&rsquo;s Habits
           </h2>
           <div className={["space-y-2", isPending ? "opacity-60" : ""].join(" ")}>
-            {partnerHabits.map((habit) => (
-              <HabitItem
-                key={habit.id}
-                habit={habit}
-                date={selectedDate}
-                isOwner={false}
-                pauseStatus={pauseStatus}
-              />
-            ))}
+            <AnimatePresence initial={false}>
+              {partnerHabits.map((habit) => (
+                <motion.div
+                  key={habit.id}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <HabitItem
+                    habit={habit}
+                    date={selectedDate}
+                    isOwner={false}
+                    pauseStatus={pauseStatus}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </section>
       )}

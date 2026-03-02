@@ -1,6 +1,7 @@
 import { getSettlements } from "@/lib/actions/settlements";
 import { getActivePair } from "@/lib/actions/habits";
 import { SettlementCard } from "@/components/settlements/settlement-card";
+import { PageTransition } from "@/components/page-transition";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ export default async function SettlementsPage() {
   const settlements = await getSettlements(pair?.id);
 
   return (
+    <PageTransition>
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Settlements</h1>
 
@@ -27,5 +29,6 @@ export default async function SettlementsPage() {
         </div>
       )}
     </div>
+    </PageTransition>
   );
 }

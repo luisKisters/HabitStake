@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
 import { PairCard } from "./pair-card";
 import type { Pair } from "@/lib/actions/pairs";
@@ -78,9 +79,13 @@ export function PairsList({
           <h2 className="text-sm font-semibold tracking-wide uppercase opacity-60">
             Incoming Requests
           </h2>
-          {incoming.map((pair) => (
-            <PairCard key={pair.id} pair={pair} />
-          ))}
+          <AnimatePresence initial={false}>
+            {incoming.map((pair) => (
+              <motion.div key={pair.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}>
+                <PairCard pair={pair} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </section>
       )}
 
@@ -89,9 +94,13 @@ export function PairsList({
           <h2 className="text-sm font-semibold tracking-wide uppercase opacity-60">
             Active Pairs
           </h2>
-          {active.map((pair) => (
-            <PairCard key={pair.id} pair={pair} />
-          ))}
+          <AnimatePresence initial={false}>
+            {active.map((pair) => (
+              <motion.div key={pair.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}>
+                <PairCard pair={pair} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </section>
       )}
 
@@ -100,9 +109,13 @@ export function PairsList({
           <h2 className="text-sm font-semibold tracking-wide uppercase opacity-60">
             Sent Requests
           </h2>
-          {outgoing.map((pair) => (
-            <PairCard key={pair.id} pair={pair} />
-          ))}
+          <AnimatePresence initial={false}>
+            {outgoing.map((pair) => (
+              <motion.div key={pair.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}>
+                <PairCard pair={pair} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </section>
       )}
     </div>

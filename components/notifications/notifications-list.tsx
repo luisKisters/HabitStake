@@ -2,6 +2,7 @@
 
 import { useEffect, useTransition } from "react";
 import { Bell } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { markNotificationsRead } from "@/lib/actions/notifications";
 import { cn } from "@/lib/utils";
 
@@ -43,28 +44,33 @@ export function NotificationsList({ initialNotifications }: Props) {
 
   return (
     <ul className="space-y-2">
-      {initialNotifications.map((n) => (
-        <li
-          key={n.id}
-          className={cn(
-            "rounded-xl border px-4 py-3",
-            !n.read ? "border-primary/30 bg-primary/5" : "bg-card"
-          )}
-        >
-          <div className="flex items-start gap-3">
-            <Bell className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">{n.title}</p>
-              {n.body && (
-                <p className="mt-0.5 text-sm text-muted-foreground">{n.body}</p>
-              )}
-              <p className="mt-1 text-xs text-muted-foreground">
-                {new Date(n.created_at).toLocaleString()}
-              </p>
+      <AnimatePresence initial={false}>
+        {initialNotifications.map((n, i) => (
+          <motion.li
+            key={n.id}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, delay: i * 0.04 }}
+            className={cn(
+              "rounded-xl border px-4 py-3",
+              !n.read ? "border-primary/30 bg-primary/5" : "bg-card"
+            )}
+          >
+            <div className="flex items-start gap-3">
+              <Bell className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">{n.title}</p>
+                {n.body && (
+                  <p className="mt-0.5 text-sm text-muted-foreground">{n.body}</p>
+                )}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {new Date(n.created_at).toLocaleString()}
+                </p>
+              </div>
             </div>
-          </div>
-        </li>
-      ))}
+          </motion.li>
+        ))}
+      </AnimatePresence>
     </ul>
   );
 }

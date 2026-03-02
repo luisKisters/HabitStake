@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getApprovalRequests } from "@/lib/actions/approvals";
 import { ApprovalsList } from "@/components/approvals/approvals-list";
+import { PageTransition } from "@/components/page-transition";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +17,11 @@ export default async function ApprovalsPage() {
   const requests = await getApprovalRequests();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Approvals</h1>
-      <ApprovalsList initialRequests={requests} />
-    </div>
+    <PageTransition>
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Approvals</h1>
+        <ApprovalsList initialRequests={requests} />
+      </div>
+    </PageTransition>
   );
 }

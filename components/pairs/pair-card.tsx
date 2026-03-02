@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,12 @@ export function PairCard({ pair }: { pair: Pair }) {
     setResponding(true);
     setError(null);
     const result = await respondToPairRequest(pair.id, accept);
-    if (result.error) setError(result.error);
+    if (result.error) {
+      setError(result.error);
+      toast.error(result.error);
+    } else {
+      toast.success(accept ? "Pair request accepted!" : "Pair request declined.");
+    }
     setResponding(false);
   }
 

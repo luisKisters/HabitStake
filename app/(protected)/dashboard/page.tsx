@@ -7,6 +7,7 @@ import { RunningBalance } from "@/components/settlements/running-balance";
 import { ProgressRing } from "@/components/dashboard/progress-ring";
 import { StreakBadge } from "@/components/dashboard/streak-badge";
 import { Confetti } from "@/components/dashboard/confetti";
+import { PageTransition } from "@/components/page-transition";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,7 @@ export default async function DashboardPage() {
     todayProgress.due > 0 && todayProgress.completed === todayProgress.due;
 
   return (
+    <PageTransition>
     <div className="space-y-3">
       <h1 className="text-2xl font-bold">Today</h1>
       {todayProgress.due > 0 && (
@@ -54,5 +56,6 @@ export default async function DashboardPage() {
       {initialData.pair && <RunningBalance pairId={initialData.pair.id} />}
       <DailyView initialData={initialData} userId={user.id} />
     </div>
+    </PageTransition>
   );
 }

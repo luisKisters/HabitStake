@@ -2,6 +2,7 @@
 
 import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
 import { getApprovalRequests, type ApprovalRequest } from "@/lib/actions/approvals";
 import { ApprovalItem } from "./approval-item";
@@ -45,9 +46,19 @@ export function ApprovalsList({ initialRequests }: Props) {
 
   return (
     <div className="space-y-3">
-      {initialRequests.map((req) => (
-        <ApprovalItem key={req.id} req={req} />
-      ))}
+      <AnimatePresence initial={false}>
+        {initialRequests.map((req) => (
+          <motion.div
+            key={req.id}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.18 }}
+          >
+            <ApprovalItem req={req} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

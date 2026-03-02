@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { toast } from "sonner";
 import { Pencil, Trash2, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
@@ -45,13 +46,22 @@ export function HabitItem({ habit, date, isOwner, pauseStatus = "none" }: Props)
       return;
     }
     startTransition(async () => {
-      await toggleHabitLog(habit.id, date, next);
+      const result = await toggleHabitLog(habit.id, date, next);
+      if (result?.error) {
+        toast.error(result.error);
+        setOptimisticCompleted(!next);
+      }
     });
   }
 
   function handleDelete() {
     startTransition(async () => {
-      await requestDeleteHabit(habit.id);
+      const result = await requestDeleteHabit(habit.id);
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Deletion request sent to partner.");
+      }
     });
   }
 
@@ -155,6 +165,7 @@ export function HabitItem({ habit, date, isOwner, pauseStatus = "none" }: Props)
             <DropdownMenuTrigger
               onClick={(e) => e.stopPropagation()}
               className="text-muted-foreground hover:text-foreground rounded p-0.5 transition-colors"
+              aria-label="Habit options"
             >
               <MoreVertical className="h-4 w-4" />
             </DropdownMenuTrigger>
