@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calculateWeekPenalties } from "@/lib/penalties";
+import { sendPushNotification } from "@/lib/push";
 
 function getMondayOfWeek(date: Date): Date {
   const day = date.getDay(); // 0=Sun
@@ -109,6 +110,17 @@ export async function GET(request: Request) {
     });
 
     await admin.from("notifications").insert(notifications);
+
+    // Send push notifications to both users
+    await Promise.all(
+      notifications.map((n) =>
+        sendPushNotification(n.user_id, {
+          title: n.title,
+          body: n.body,
+          url: `/settlements/${settlement.id}`,
+        })
+      )
+    );
 
     processed++;
   }

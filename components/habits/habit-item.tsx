@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toggleHabitLog, requestDeleteHabit, type HabitWithLog, type PauseStatus } from "@/lib/actions/habits";
+import { enqueue } from "@/lib/offline-queue";
 import { HabitFormDialog } from "./habit-form-dialog";
 
 type Props = {
@@ -37,6 +38,11 @@ export function HabitItem({ habit, date, isOwner, pauseStatus = "none" }: Props)
     if (next) {
       setFlash(true);
       setTimeout(() => setFlash(false), 600);
+    }
+    // Queue locally when offline; OfflineSyncProvider will flush on reconnect
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      enqueue({ habitId: habit.id, date, completed: next });
+      return;
     }
     startTransition(async () => {
       await toggleHabitLog(habit.id, date, next);
