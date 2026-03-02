@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { getDailyData, type HabitWithLog, type ActivePair } from "@/lib/actions/habits";
+import { getDailyData, type HabitWithLog, type ActivePair, type PauseStatus } from "@/lib/actions/habits";
 import { Button } from "@/components/ui/button";
 import { HabitItem } from "./habit-item";
 import { HabitFormDialog } from "./habit-form-dialog";
@@ -13,6 +13,7 @@ type DailyData = {
   myHabits: HabitWithLog[];
   partnerHabits: HabitWithLog[];
   pair: ActivePair | null;
+  pauseStatus: PauseStatus;
 };
 
 // Returns the Mon–Sun dates of the week containing `date`
@@ -100,7 +101,8 @@ export function DailyView({ initialData, userId }: Props) {
     );
   }
 
-  const { myHabits, partnerHabits } = data;
+  const { myHabits, partnerHabits, pauseStatus } = data;
+  const isPaused = pauseStatus !== "none";
 
   return (
     <div className="space-y-6">
@@ -133,6 +135,22 @@ export function DailyView({ initialData, userId }: Props) {
         })}
       </div>
 
+      {/* Pause banner */}
+      {isPaused && (
+        <div
+          className={[
+            "rounded-xl border px-4 py-3 text-sm",
+            pauseStatus === "full"
+              ? "bg-muted/60 border-muted text-muted-foreground"
+              : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300",
+          ].join(" ")}
+        >
+          {pauseStatus === "full"
+            ? "⏸ Tracking paused — no penalties for this day."
+            : "⚠ Payment pause — habits tracked but no penalties for this day."}
+        </div>
+      )}
+
       {/* My Habits */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -164,6 +182,7 @@ export function DailyView({ initialData, userId }: Props) {
                 habit={habit}
                 date={selectedDate}
                 isOwner={true}
+                pauseStatus={pauseStatus}
               />
             ))}
           </div>
@@ -183,6 +202,7 @@ export function DailyView({ initialData, userId }: Props) {
                 habit={habit}
                 date={selectedDate}
                 isOwner={false}
+                pauseStatus={pauseStatus}
               />
             ))}
           </div>

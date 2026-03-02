@@ -9,16 +9,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toggleHabitLog, requestDeleteHabit, type HabitWithLog } from "@/lib/actions/habits";
+import { toggleHabitLog, requestDeleteHabit, type HabitWithLog, type PauseStatus } from "@/lib/actions/habits";
 import { HabitFormDialog } from "./habit-form-dialog";
 
 type Props = {
   habit: HabitWithLog;
   date: string;
   isOwner: boolean;
+  pauseStatus?: PauseStatus;
 };
 
-export function HabitItem({ habit, date, isOwner }: Props) {
+export function HabitItem({ habit, date, isOwner, pauseStatus = "none" }: Props) {
   const [isPending, startTransition] = useTransition();
   const [optimisticCompleted, setOptimisticCompleted] = useState(
     habit.log?.completed ?? false,
@@ -49,18 +50,26 @@ export function HabitItem({ habit, date, isOwner }: Props) {
   }
 
   const isPendingDeletion = habit.status === "pending_deletion";
+  const isFullPause = pauseStatus === "full";
+  const isPaymentPause = pauseStatus === "payment_only";
+  // Full pause disables interaction; payment pause still allows check-off
+  const canInteract = isOwner && !isFullPause;
 
   return (
     <>
       <motion.div
-        whileTap={isOwner ? { scale: 0.97 } : undefined}
+        whileTap={canInteract ? { scale: 0.97 } : undefined}
         className={[
           "relative flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors",
-          completed ? "bg-primary/5 border-primary/20" : "bg-card",
+          isFullPause
+            ? "bg-muted/40 border-muted opacity-60"
+            : completed
+              ? "bg-primary/5 border-primary/20"
+              : "bg-card",
           isPendingDeletion ? "opacity-50" : "",
-          isOwner ? "cursor-pointer" : "cursor-default",
+          canInteract ? "cursor-pointer" : "cursor-default",
         ].join(" ")}
-        onClick={isOwner ? handleToggle : undefined}
+        onClick={canInteract ? handleToggle : undefined}
       >
         {/* Animated green flash overlay */}
         <AnimatePresence>
@@ -75,38 +84,45 @@ export function HabitItem({ habit, date, isOwner }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Checkbox */}
-        <motion.div
-          animate={completed ? { scale: [1, 1.2, 1] } : { scale: 1 }}
-          transition={{ duration: 0.2 }}
-          className={[
-            "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-            completed
-              ? "border-primary bg-primary"
-              : "border-muted-foreground/40",
-          ].join(" ")}
-        >
-          {completed && (
-            <svg
-              className="h-3 w-3 text-primary-foreground"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={3}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          )}
-        </motion.div>
+        {/* Checkbox — hidden when full pause */}
+        {!isFullPause && (
+          <motion.div
+            animate={completed ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+            transition={{ duration: 0.2 }}
+            className={[
+              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+              completed
+                ? "border-primary bg-primary"
+                : "border-muted-foreground/40",
+            ].join(" ")}
+          >
+            {completed && (
+              <svg
+                className="h-3 w-3 text-primary-foreground"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={3}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            )}
+          </motion.div>
+        )}
+
+        {/* Paused icon */}
+        {isFullPause && (
+          <span className="text-muted-foreground shrink-0 text-base">⏸</span>
+        )}
 
         <span
           className={[
             "flex-1 text-sm font-medium",
-            completed ? "text-muted-foreground line-through" : "",
+            completed && !isFullPause ? "text-muted-foreground line-through" : "",
           ].join(" ")}
         >
           {habit.name}
@@ -115,10 +131,20 @@ export function HabitItem({ habit, date, isOwner }: Props) {
               (pending deletion)
             </span>
           )}
+          {isFullPause && (
+            <span className="ml-2 text-xs font-normal text-muted-foreground">
+              Paused
+            </span>
+          )}
+          {isPaymentPause && (
+            <span className="ml-2 text-xs font-normal text-amber-600 dark:text-amber-400">
+              No penalty
+            </span>
+          )}
         </span>
 
         {/* Owner actions */}
-        {isOwner && !isPendingDeletion && (
+        {isOwner && !isPendingDeletion && !isFullPause && (
           <DropdownMenu>
             <DropdownMenuTrigger
               onClick={(e) => e.stopPropagation()}

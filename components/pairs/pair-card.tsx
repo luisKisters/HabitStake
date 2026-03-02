@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { respondToPairRequest } from "@/lib/actions/pairs";
 import type { Pair } from "@/lib/actions/pairs";
 import { PenaltyConfig } from "./penalty-config";
+import { PauseRequestDialog } from "./pause-request-dialog";
 
 function getInitials(name: string | null): string {
   if (!name) return "?";
@@ -46,7 +47,10 @@ export function PairCard({ pair }: { pair: Pair }) {
           <p className="truncate font-medium">{partnerName}</p>
 
           {pair.status === "active" && (
-            <PenaltyConfig pairId={pair.id} initialAmount={pair.penalty_amount} />
+            <div className="flex flex-wrap items-center gap-2">
+              <PenaltyConfig pairId={pair.id} initialAmount={pair.penalty_amount} />
+              <PauseRequestDialog pairId={pair.id} />
+            </div>
           )}
 
           {pair.status === "pending" && (

@@ -22,6 +22,8 @@ export type ActivePair = {
   penalty_amount: number;
 };
 
+export type PauseStatus = "none" | "full" | "payment_only";
+
 export async function getActivePair(): Promise<ActivePair | null> {
   const supabase = await createClient();
   const {
@@ -43,15 +45,16 @@ export async function getDailyData(date: string): Promise<{
   myHabits: HabitWithLog[];
   partnerHabits: HabitWithLog[];
   pair: ActivePair | null;
+  pauseStatus: PauseStatus;
 }> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { myHabits: [], partnerHabits: [], pair: null };
+  if (!user) return { myHabits: [], partnerHabits: [], pair: null, pauseStatus: "none" };
 
   const pair = await getActivePair();
-  if (!pair) return { myHabits: [], partnerHabits: [], pair: null };
+  if (!pair) return { myHabits: [], partnerHabits: [], pair: null, pauseStatus: "none" };
 
   // dayOfWeek: 0=Sun, 1=Mon … 6=Sat (JS convention matches active_days encoding)
   const dayOfWeek = new Date(date + "T00:00:00").getDay();
@@ -67,7 +70,21 @@ export async function getDailyData(date: string): Promise<{
     h.active_days.includes(dayOfWeek),
   );
 
-  if (habits.length === 0) return { myHabits: [], partnerHabits: [], pair };
+  // Check for approved pause covering this date
+  const { data: pauseRaw } = await supabase
+    .from("pauses")
+    .select("pause_type")
+    .eq("pair_id", pair.id)
+    .eq("status", "approved")
+    .lte("start_date", date)
+    .gte("end_date", date)
+    .maybeSingle();
+
+  const pauseStatus: PauseStatus = pauseRaw
+    ? (pauseRaw.pause_type as PauseStatus)
+    : "none";
+
+  if (habits.length === 0) return { myHabits: [], partnerHabits: [], pair, pauseStatus };
 
   const habitIds = habits.map((h) => h.id);
   const { data: logs } = await supabase
@@ -99,7 +116,7 @@ export async function getDailyData(date: string): Promise<{
     .filter((h) => h.user_id !== user.id)
     .map(toHabitWithLog);
 
-  return { myHabits, partnerHabits, pair };
+  return { myHabits, partnerHabits, pair, pauseStatus };
 }
 
 export async function createHabit(data: {
